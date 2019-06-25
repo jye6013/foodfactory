@@ -14,8 +14,6 @@
         
         $result = $conn->prepare($cmd);
         $result->execute();
-        
-        // output data of each row
         $count = 0;
         while($row = $result->fetch()) 
         {
@@ -28,6 +26,5 @@
         {
             //echo "0 results";
         }
-        //return sasda;
     }
 ?>
