@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<!--Ji Ye-->
+<html> 
+	<head>
+        <link href="https://fonts.googleapis.com/css?family=Bubbler+One" rel="stylesheet">
+		<title> </title>
+		<style>
+            *
+            {
+                color: white;
+                text-align: center;
+                font-family: 'Bubbler One', sans-serif;
+            }
+            
+            .button
+            {
+                color: black;
+                border-radius: 50px;
+            }
+            
+            .input
+            {
+                color: black;
+            }
+		</style>                                                                 
+		<script onload = "">
+			function initialize()
+            {
+                document.getElementById("myHistory").style.visibility = 'hidden';
+                currentCart = document.getElementById("myCart").innerHTML;
+                currentHistory = document.getElementById("myHistory").innerHTML;
+                
+                cartInner = document.getElementById("myCart");
+                historyInner = document.getElementById("myHistory");
+                
+                foodSubtotals = [];
+                foodTotal = 0;
+                
+                orderItems = {"order": []};
+            }
+            
+            function makeVisible(id)
+            {
+                if (id == "myCart")
+                {
+                    document.getElementById("myCart").style.visibility = 'visible';
+                    document.getElementById("myHistory").style.visibility = 'hidden';
+                    historyInner.innerHTML = "";
+                    cartInner.innerHTML = currentCart;
+                }
+                else
+                {
+                    if (id == "myHistory")
+                    {
+                        document.getElementById("myHistory").style.visibility = 'visible';
+                        document.getElementById("myCart").style.visibility = 'hidden';
+                        cartInner.innerHTML = "";
+                        historyInner.innerHTML = currentHistory;
+                    }
+                }
+            }
+            
+            function makeSpecials()
+            {
+                num = parseInt(Math.random() * 4);
+            }
+            
+            function showSub(name, quantity, priceId, contentId)
+            {
+                var fruitContent = document.getElementById(contentId); 
+                var fruitPrice = document.getElementById(priceId).value;
+               
+                currentAmount = Number(fruitPrice) * Number(quantity);
+                foodSubtotals[name] = currentAmount;
+               
+                fruitContent.innerHTML = "Subtotal: $" + currentAmount.toFixed(2);
+                
+                var foundOrderItem = null;
+                var order = orderItems["order"];
+                //for (var orderItem in order)
+                for (i = 0; i < order.length; i++) 
+                {
+                    orderItem = order[i];
+                    if (orderItem["name"] == name)
+                    {
+                        foundOrderItem = orderItem;
+                        if (quantity == 0) 
+                        {
+                            order.splice(i, 1);
+                        }
+                        break;
+                    }
+                }
+                if (quantity != 0) 
+                {
+                    if (foundOrderItem == null)
+                    {
+                        foundOrderItem = {};
+                        order.push(foundOrderItem);
+                    }
+                    foundOrderItem["name"] = name;
+                    foundOrderItem["quantity"] = quantity;
+                    foundOrderItem["price"] = fruitPrice;
+                }
+               
+                foodTotal = 0;
+                //for (var i = 0; i < foodSubtotals.length; i++)
+                for (var key in foodSubtotals)
+                {
+                    foodTotal += foodSubtotals[key];
+                }
+                document.getElementById("foodtotal").innerHTML = foodTotal.toFixed(2);
+                
+                //currentCart = document.getElementById("myCart").innerHTML;
+            }
+            
+            function submitOrder()
+            {
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function() 
+                {
+                    if (this.readyState == 4 && this.status == 200) 
+                    {
+                        document.getElementById("orderStatus").innerHTML = this.responseText;
+                    }
+                };
+                var myJSON = JSON.stringify(orderItems);
+                xmlhttp.open("GET", "checkout.php?order=" + myJSON, true);
+                xmlhttp.send();
+            }
+            
+            function showHistory()
+            {
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function() 
+                {
+                    if (this.readyState == 4 && this.status == 200) 
+                    {
+                        document.getElementById("myHistory").innerHTML = this.responseText;
+                    }
+                };
+                xmlhttp.open("GET", "history.php?", true);
+                xmlhttp.send();
+            }
+		</script>
+	</head>
+	<body onload = "initialize();">
+		<h1 class = "title">FoodFactory</h1>
+        <div class = "sub">Fresh foods delivered fast!</div>
+        <p><button onclick = "makeVisible('myCart')" class = "button">View Cart</button>
+        <button onclick = "makeVisible('myHistory'); showHistory();" class = "button">Order History</button>
+        <p><a href = "feedback.php">Not satisfied with a purchase?</a>
+        <div id = "myCart">
+            <form>
+                <h3 class = "subtitle">Fruit</h3>
+                $0.35 Tomato(s) 
+                <input type="hidden" value="0.35" id ="tomatoPrice" />
+                <input class = "input" type = "text" name = "tomatoQuan" value = "" 
+                onkeyup="showSub('Tomato(s)', this.value, 'tomatoPrice', 'tomatoSub')" /> 
+                <span id = "tomatoSub"></span> 
+                
+                <p>$0.65 Apples(s) 
+                <input type="hidden" value="0.65" id="applePrice" />
+                <input class = "input" type = "text" name = "appleQuan" value = ""
+                onkeyup="showSub('Apples(s)', this.value, 'applePrice', 'appleSub')" />     
+                <span id = "appleSub"></span>
+                
+                <p>$0.75 Orange(s)
+                <input type="hidden" value="0.75" id="orangePrice" />
+                <input class = "input" type = "text" name = "orangeQuan" value = "" 
+                onkeyup="showSub('Orange(s)', this.value, 'orangePrice', 'orangeSub')" /> 
+                <span id = "orangeSub"></span> 
+                
+                <p>$0.25 Strawberry(s)
+                <input type="hidden" value="0.75" id="strawberryPrice" />
+                <input class = "input" type = "text" name = "strawberryQuan" value = "" 
+                onkeyup="showSub('Strawberry(s)', this.value, 'strawberryPrice', 'strawberrySub')" /> 
+                <span id = "strawberrySub"></span> 
+                
+                <p>$0.99 Kiwi(s)
+                <input type="hidden" value="0.99" id="kiwiPrice" />
+                <input class = "input" type = "text" name = "kiwiQuan" value = "" 
+                onkeyup="showSub('Kiwi(s)', this.value, 'kiwiPrice', 'kiwiSub')" /> 
+                <span id = "kiwiSub"></span> 
+                
+                <p><h3 class = "subtitle">Meat</h3>
+                <p>$5.99 Chicken (4 lb)
+                <input type="hidden" value="5.99" id="chickenPrice" />
+                <input class = "input" type = "text" name = "chickenQuan" value = "" 
+                onkeyup="showSub('Chicken (4 lb)', this.value, 'chickenPrice', 'chickenSub')" /> 
+                <span id = "chickenSub"></span> 
+                
+                <p>$6.99 Pork (2 lb)
+                <input type="hidden" value="6.99" id="porkPrice" />
+                <input class = "input" type = "text" name = "porkQuan" value = "" 
+                onkeyup="showSub('Pork (2 lb)', this.value, 'porkPrice', 'porkSub')" /> 
+                <span id = "porkSub"></span> 
+                
+                <p>$7.99 Beef (2 lb)
+                <input type="hidden" value="7.99" id="beefPrice" />
+                <input class = "input" type = "text" name = "beefQuan" value = "" 
+                onkeyup="showSub('Beef (2 lb)', this.value, 'beefPrice', 'beefSub')" /> 
+                <span id = "beefSub"></span> 
+                
+                <p>$12.50 Turkey (7 lb)
+                <input type="hidden" value="12.50" id="turkeyPrice" />
+                <input class = "input" type = "text" name = "turkeyQuan" value = "" 
+                onkeyup="showSub('Turkey (7 lb)', this.value, 'turkeyPrice', 'turkeySub')" /> 
+                <span id = "turkeySub"></span> 
+                
+                <p><h3 class = "subtitle">Grains</h3>
+                <p>$2.99 Bread (1 pkg)
+                <input type="hidden" value="2.99" id="breadPrice" />
+                <input class = "input" type = "text" name = "breadQuan" value = "" 
+                onkeyup="showSub('Bread (1 pkg)', this.value, 'breadPrice', 'breadSub')" /> 
+                <span id = "breadSub"></span> 
+                
+                <p>$7.50 Rice (1 pkg)
+                <input type="hidden" value="7.50" id="ricePrice" />
+                <input class = "input" type = "text" name = "riceQuan" value = "" 
+                onkeyup="showSub('Rice (1 pkg)', this.value, 'ricePrice', 'riceSub')" /> 
+                <span id = "riceSub"></span> 
+                
+                <p>$4.50 Oatmeal (1 pkg)
+                <input type="hidden" value="4.50" id="oatmealPrice" />
+                <input class = "input" type = "text" name = "oatmealQuan" value = "" 
+                onkeyup="showSub('Oatmeal (1 pkg)', this.value, 'oatmealPrice', 'oatmealSub')" /> 
+                <span id = "oatmealSub"></span> 
+                
+                <p>$3.25 Pasta (1 pkg)
+                <input type="hidden" value="3.25" id="pastaPrice" />
+                <input class = "input" type = "text" name = "pastaQuan" value = "" 
+                onkeyup="showSub('Pasta (1 pkg)', this.value, 'pastaPrice', 'pastaSub')" /> 
+                <span id = "pastaSub"></span> 
+                
+                <p>$2.50 Noodles (1 pkg)
+                <input type="hidden" value="2.50" id="noodlesPrice" />
+                <input class = "input" type = "text" name = "noodlesQuan" value = "" 
+                onkeyup="showSub('Noodles (1 pkg)', this.value, 'noodlesPrice', 'noodlesSub')" /> 
+                <span id = "noodlesSub"></span> 
+                
+                <div>Total: $<span id = "foodtotal">0.00</span></div>
+                <p><input class = "button" onclick ="submitOrder();" value = "Checkout" /></p>
+            </form>
+        </div>
+        <div id = "orderStatus"></div>
+        <div id = "myHistory">
+            (None)
+        </div>
+        
+        <body background = "images/food.jpg">
+	</body> 
+</html>
