@@ -24,7 +24,7 @@
         }
         if ($count == 0) 
         {
-            //echo "0 results";
+            echo "0 results";
         }
     }
 ?>
